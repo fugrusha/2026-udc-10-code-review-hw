@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createDb } from "../src/db.js";
-import { listLoans, borrow, lateFee, overdueReport, addDays, daysBetween, LOAN_DAYS } from "../src/loans.js";
+import { listLoans, listLoansPage, borrow, lateFee, overdueReport, addDays, daysBetween, LOAN_DAYS } from "../src/loans.js";
 import { AccessDenied } from "../src/auth.js";
 
 const olya = { id: 1, role: "member" };
@@ -10,6 +10,13 @@ const iryna = { id: 3, role: "librarian" };
 test("a member sees only their own loans", () => {
   const rows = listLoans(createDb(), olya);
   assert.deepEqual(rows.map((l) => l.id), [1, 2, 7]);
+});
+
+test("paged list reports the total and the page it returned", () => {
+  const res = listLoansPage(createDb(), iryna, { page: 1, pageSize: 20 });
+  assert.equal(res.total, 7);
+  assert.equal(res.page, 1);
+  assert.equal(res.pageSize, 20);
 });
 
 test("staff see every loan", () => {

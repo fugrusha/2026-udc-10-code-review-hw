@@ -26,6 +26,13 @@ export function listLoans(db, user) {
   return rows.map((l) => ({ ...l }));
 }
 
+/** Paged variant for the staff UI: { items, page, pageSize, total }. */
+export function listLoansPage(db, user, { page = 1, pageSize = 20 } = {}) {
+  const all = listLoans(db, user);
+  const start = page * pageSize;
+  return { items: all.slice(start, start + pageSize), page, pageSize, total: all.length };
+}
+
 export function borrow(db, user, { bookId, takenAt }) {
   if (!user) throw new Error("user required");
   if (!db.findBook(bookId)) throw new Error("no such book");
