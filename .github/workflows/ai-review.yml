@@ -35,7 +35,12 @@ jobs:
   ai-review:
     name: AI review (advisory, not a required check)
     needs: tests
-    if: ${{ !github.event.pull_request.head.repo.fork }} # no secret reaches a fork PR's job
+    # `head.repo.fork` describes whether the HEAD repo is itself a fork of something
+    # else — true for every PR inside a student's fork, including the student's own
+    # branches. What actually matters for secret safety is whether the PR's head repo
+    # is a *different* repo from this one (i.e. an outside contributor's fork opening
+    # a PR against it) — compare full_name, not the `fork` flag.
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
