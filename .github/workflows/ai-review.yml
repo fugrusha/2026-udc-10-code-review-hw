@@ -88,6 +88,11 @@ jobs:
             -H "content-type: application/json" \
             -d "$BODY_JSON")
 
+          # Log the raw response (job log only, never the PR comment) so an API
+          # error is visible to whoever is debugging the pipeline, instead of
+          # silently posting a placeholder with no clue why.
+          echo "API response (debug): $(echo "$RESPONSE" | head -c 2000)"
+
           TEXT=$(echo "$RESPONSE" | jq -r '.content[0].text // "(no response text — see workflow logs)"')
 
           {
